@@ -1,0 +1,36 @@
+site_name: О решениях спринта №3
+
+theme:
+  name: material
+  language: ru
+  
+markdown_extensions:
+  - md_in_html  
+  - smarty
+  - toc:
+      permalink: True
+      separator: '_'      
+  - sane_lists
+plugins:
+  - search:
+      lang:
+        - ru
+  - plantuml-colocator
+  - plantuml:
+      puml_url: https://www.plantuml.com/plantuml/
+      puml_keyword: puml
+      verify_ssl: true
+      auto_dark: false
+  - toc-md:
+      toc_page_title: Содержание
+      toc_page_description: Документация решений практической работы №3
+      header_level: 4
+      integrate_mkdocs_static_i18n: true
+      languages:
+        en:
+          toc_page_title: Contents
+          toc_page_description: Documentation of practical work solutions No. 3
+        ru:
+          toc_page_title: Содержание
+          toc_page_description: Документация решений практической работы №3
+
