@@ -3,6 +3,8 @@ site_name: Решения спринта №3
 theme:
   name: material
   language: ru
+  plugins:
+  - typeset
   
 markdown_extensions:
   - md_in_html  

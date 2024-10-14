@@ -8,20 +8,20 @@
 
 В настоящее время к системе подключено 100 модулей управления отоплением.
 
-## Диаграмма контекста
+## Диаграмма контекста (C4)
 
 ```puml
 @startuml
-title Диаграмма контекста системы ПП «Хитрый Дом»
 'top to bottom direction
 !include <C4/C4_Context>
-
 !include <tupadr3/common>
 !include <tupadr3/devicons2/postgresql>
 !include <tupadr3/devicons2/spring_original>
 !include <tupadr3/font-awesome-6/faucet>
 !include <tupadr3/font-awesome-6/temperature_half>
 !include <tupadr3/govicons/user_graduate>
+
+title [System Context] ПП «Хитрый Дом»
 
 Person_Ext(user, "Пользователь", \
     "Пользователь, чья система отопления подключена к системе", \
@@ -58,8 +58,7 @@ Rel(SmartHome, moduleN, \
 
 ## Функционал системы
 
-В самом приложении можно выделить 2 домена: [Управление устройствами](#_4) и
-[Мониторинг температуры](#_5)
+В самом приложении можно выделить 2 домена: [Управление отопительными системами](#_4) и [Мониторинг температуры](#_5).
 
 ### Управление отопительными системами
 

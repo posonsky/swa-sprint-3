@@ -1,0 +1,6 @@
+mkdocs==1.6.1
+mkdocs-material==9.5.40
+mkdocs-plantuml==0.1.1
+mkdocs_puml==1.4.1
+mkdocs-toc-md==0.0.9
+plantuml==0.3.0
