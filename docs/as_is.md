@@ -1,6 +1,6 @@
 # Текущее состояние
 
-Актуальная версия программного продукта (ПП) РосУдалТеплоКонтроль имеет следующие основные характеристики:
+Актуальная версия программного продукта (ПП) «Хитрый дом» имеет следующие основные характеристики:
 
 * Позволяет только управлять отоплением в доме и проверять температуру.
 
@@ -8,52 +8,49 @@
 
 В настоящее время к системе подключено 100 модулей управления отоплением.
 
+## Диаграмма контекста
+
 ```puml
 @startuml
-!theme sketchy-outline
+title Диаграмма контекста системы ПП «Хитрый Дом»
+'top to bottom direction
+!include <C4/C4_Context>
 
-title Диаграмма контекста системы РосУдалТеплоКонтроль
-
-top to bottom direction
-
-!include https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Context.puml
-
-!$ICONURL = "https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/v3.0.0/icons"
-!include $ICONURL/common.puml
-!include $ICONURL/font-awesome-6/users.puml
-!include $ICONURL/font-awesome-6/temperature_half.puml
-!include $ICONURL/font-awesome-6/faucet.puml
-!include $ICONURL/govicons/user_graduate.puml
-!include $ICONURL/devicons2/spring_original.puml
+!include <tupadr3/common>
+!include <tupadr3/devicons2/postgresql>
+!include <tupadr3/devicons2/spring_original>
+!include <tupadr3/font-awesome-6/faucet>
+!include <tupadr3/font-awesome-6/temperature_half>
+!include <tupadr3/govicons/user_graduate>
 
 Person_Ext(user, "Пользователь", \
     "Пользователь, чья система отопления подключена к системе", \
-    $sprite=users)
+    $type=Person)
 
 Person(installer, "Монтёр", \
     "Специалист компании, подключающий новые устройства", \
-    $sprite=user_graduate)
+    $sprite=user_graduate, $type=Person)
 
-System(RosRemHeatControl, "ПП РосУдалТеплоКонтроль", \
+System(SmartHome, "ПП Хитрый Дом", \
     "Управляет отопительными системами в коттеджах", \
-    spring_original)
+    $sprite=spring_original, $type="Software System")
 
 System_Ext(sensorN, "Датчик N", "Датчик температуры N", \
-    $sprite=temperature_half, $type="ReST API")
+    $sprite=temperature_half, $type="Software System")
 System_Ext(moduleN, "Модуль управления N", \
     "Устройство, регулирующее температуру в помещении N", \
-    $sprite=faucet, $type="ReST API")
+    $sprite=faucet, $type="Software System")
 
-Rel(user, RosRemHeatControl, \
+Rel(user, SmartHome, \
     "Включает/отключает, устанавливает температуру", $techn="HTTP")
-Rel(user, RosRemHeatControl, \
+Rel(user, SmartHome, \
     "Проверяет температуру", $techn="HTTP")
 
-Rel(installer, RosRemHeatControl, \
+Rel(installer, SmartHome, \
     "Подключает новые устройства", $techn="HTTP")
-Rel(RosRemHeatControl, sensorN, "Запрашивает температуру", \
+Rel(SmartHome, sensorN, "Запрашивает температуру", \
     $techn="ReST / JSON")
-Rel(RosRemHeatControl, moduleN, \
+Rel(SmartHome, moduleN, \
     "Запрашивает/устанавливает значение", $techn="ReST / JSON")
 
 @enduml
@@ -61,8 +58,8 @@ Rel(RosRemHeatControl, moduleN, \
 
 ## Функционал системы
 
-В самом приложении можно выделить 2 домена: [Управление устройствами](#_3) и
-[Мониторинг температуры](#_4)
+В самом приложении можно выделить 2 домена: [Управление устройствами](#_4) и
+[Мониторинг температуры](#_5)
 
 ### Управление отопительными системами
 
