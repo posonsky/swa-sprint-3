@@ -1,7 +1,7 @@
 openapi: '3.0.3'
 info:
   title: SmartHome Telemetry microservice API
-  description: |-
+  description: >-
     Спецификация ReST API микросервиса «Телеметрия» ПП «Хитрый дом»
   contact:
     email: user@email.ru
@@ -26,22 +26,16 @@ paths:
         '500':
           description: Внутренняя ошибка сервиса
   
-  /module/{moduleId}:
+  /modules/{moduleId}:
     get:
       summary: Есть ли данные с указанного модуля
       description: Отображает, были ли уже получены данные с указанного модуля
-      operationId: getModuleById
+      operationId: getModuleById      
       parameters:
-        - name: moduleId
-          in: path
-          description: Идентификатор модуля
-          required: true
-          schema:
-            type: integer
-            format: int64
+        - $ref: '#/components/parameters/moduleId'
       responses:
         '200':
-          description: |-
+          description: >-
             Возвращает объект с единственным свойством present типа boolean
           content:
             application/json:
@@ -50,22 +44,16 @@ paths:
         '404':
           description: Модуль не найден
   
-  /module/{moduleId}/stat:
+  /modules/{moduleId}/stat:
     get:
       summary: Получить агрегированные данные по указанному модулю
       description: Агрегированная информация со всех устройств модуля
       operationId: getStatByModuleId
       parameters:
-        - name: moduleId
-          in: path
-          description: Идентификатор модуля
-          required: true
-          schema:
-            type: integer
-            format: int64
+        - $ref: '#/components/parameters/moduleId'          
       responses:
         '200':
-          description: |-
+          description: >-
             Возвращает список метрик со всех устройств, собранных посредством
             данного модуля
           content:
@@ -77,13 +65,15 @@ paths:
         '404':
           description: Модуль не найден
   
-  /module/{moduleId}/latest:
+  /modules/{moduleId}/latest:
     get:
       summary: Список последних значений каждой метрики
-      description: |-
+      description: >-
         Возвращает последнее значение для каждой метрики, полученной со всех
         устройств, которые подключены к данному модулю
       operationId: getLatestByModuleId
+      parameters:
+        - $ref: '#/components/parameters/moduleId'
       responses:
         '200':
           description: Список последних показаний по каждой метрике
@@ -96,28 +86,17 @@ paths:
         '404':
           description: Модуль не найден
 
-  /module/{moduleId}/history:
+  /modules/{moduleId}/history:
     get:
       summary: Список значений метрик
-      description: |-
+      description: >-
         Возвращает все полученные данные со всех устройств, которые подключены
         к данному модулю
       operationId: getHistoryByModuleId
       parameters:
-        - name: since
-          in: query
-          description: Дата и время, с которого возвращать данные
-          required: false
-          schema:
-            type: string
-            format: date-time
-        - name: to
-          in: query
-          description: Дата и время, до которого возвращать данные
-          required: false
-          schema:
-            type: string
-            format: date-time      
+        - $ref: '#/components/parameters/moduleId'
+        - $ref: '#/components/parameters/dateSince'
+        - $ref: '#/components/parameters/dateTo'   
       responses:
         '200':
           description: Массив всех метрик, снятых с модуля
@@ -130,22 +109,16 @@ paths:
         '404':
           description: Модуль не найден
   
-  /device/{deviceId}:
+  /devices/{deviceId}:
     get:
       summary: Есть ли данные указанного устройства
       description: Отображает, были ли уже получены данные указанного устройства
       operationId: getDeviceById
       parameters:
-        - name: deviceId
-          in: path
-          description: Идентификатор устройства          
-          required: true
-          schema:
-            type: integer
-            format: int64
+        - $ref: '#/components/parameters/deviceId'
       responses:
         '200':
-          description: |-
+          description: >-
             Возвращает объект с единственным свойством present типа boolean
           content:
             application/json:
@@ -154,13 +127,15 @@ paths:
         '404':
           description: Устройство не найдено
   
-  /device/{deviceId}/latest:
+  /devices/{deviceId}/latest:
     get:
       summary: Последние значения метрик устройства
-      description: |-
+      description: >-
         Возвращает последнее значение для каждой метрики, относящихся к
         устройству
       operationId: getLatestByDeviceId
+      parameters:
+        - $ref: '#/components/parameters/deviceId'
       responses:
         '200':
           description: Список последних показаний c устройства
@@ -173,27 +148,16 @@ paths:
         '404':
           description: Устройство не найдено
   
-  /device/{deviceId}/history:
+  /devices/{deviceId}/history:
     get:
       summary: Список значений метрик
-      description: |-
+      description: >-
         Возвращает все полученные данные с устройства
       operationId: getHistoryByDeviceId
       parameters:
-        - name: since
-          in: query
-          description: Дата и время, с которого возвращать данные
-          required: false
-          schema:
-            type: string
-            format: date-time
-        - name: to
-          in: query
-          description: Дата и время, до которого возвращать данные
-          required: false
-          schema:
-            type: string
-            format: date-time      
+        - $ref: '#/components/parameters/deviceId'
+        - $ref: '#/components/parameters/dateSince'
+        - $ref: '#/components/parameters/dateTo'
       responses:
         '200':
           description: Массив метрик устройства
@@ -207,6 +171,47 @@ paths:
           description: Устройство не найдено
 
 components:
+  parameters:
+    moduleId:
+      name: moduleId
+      in: path
+      required: true
+      schema:
+        type: number
+        format: int64
+        maximum: 100000000
+        description: Идентификатор модуля
+
+    deviceId:
+      name: deviceId
+      in: path
+      required: true
+      schema:
+        type: number
+        format: int64
+        maximum: 10000000000
+        description: Идентификатор устройства
+    
+    dateSince:
+      name: since
+      description: Дата и время, с которого возвращать данные
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date-time
+        maxLength: 25
+
+    dateTo:
+      name: to
+      description: Дата и время, до которого возвращать данные
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date-time
+        maxLength: 25
+  
   schemas:
     HealthResponse:
       type: object
@@ -230,14 +235,16 @@ components:
               type: string
               description: Статус OTel коллектора 
               example: UP
+      additionalProperties: false
     
     Present:
       type: object
       properties:        
         present:
           type: boolean          
-          description: Флаг наличия данных в хранилище          
-
+          description: Флаг наличия данных в хранилище
+      additionalProperties: false
+  
     MetricStat:
       type: object
       properties:
@@ -250,25 +257,8 @@ components:
         numOfValues:
           type: integer
           format: int64
-
-    Metric:
-      type: object
-      properties:
-        moduleId:
-          type: integer
-          format: int64
-        deviceId:
-          type: integer
-          format: int64          
-        typeId:
-          type: integer
-          format: int32
-        dateTime:
-          type: string
-          format: date-time
-        value:
-          type: number
-       
+      additionalProperties: false
+    
     MetricWOModule:
       type: object
       properties:        
@@ -283,4 +273,22 @@ components:
           format: date-time
         value:
           type: number
-        
+      additionalProperties: false
+
+    Metric:
+      allOf:
+        - $ref: '#/components/schemas/MetricWOModule'
+        - type: object
+          required:
+            - moduleId
+          properties:
+            moduleId:
+              type: integer
+              format: int64
+          additionalProperties: false
+
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
