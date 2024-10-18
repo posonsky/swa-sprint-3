@@ -1,0 +1,421 @@
+openapi: '3.0.3'
+info:
+  title: SmartHome Commander microservice API
+  description: >-
+    Спецификация ReST API микросервиса «Командир» ПП «Хитрый дом»
+  contact:
+    email: user@email.ru
+  version: '1.0'
+
+servers:
+  - url: http://commander.smart-home.internal/v1
+
+paths:
+  /health:
+    get:
+      summary: Проверить состояние сервиса
+      description: Проверить текущее состояние сервиса
+      operationId: checkHealth
+      responses:
+        '200':
+          description: Сервис в порядке
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '500':
+          description: Внутренняя ошибка сервиса
+
+  /modules/{moduleId}:
+    get:
+      summary: Доступность модуля
+      description: Сведения о текущей доступности модуля для управления
+      operationId: getModuleById      
+      parameters:
+        - $ref: '#/components/parameters/moduleId'
+      responses:
+        '200':
+          description: >-
+            Возвращает объект с данными доступности в данный момент
+          content:
+            application/json:
+              schema:                
+                $ref: '#/components/schemas/IsModuleAvailable'
+        '404':
+          description: Модуль не найден
+
+  /modules/{moduleId}/status:
+    get:
+      summary: Состояние модуля
+      description: >-
+        Данные о статусе модуля: аптайм, версия прошивки, сколько устройств
+        подключено, сколько метрик получено/снято за время работы, сколько 
+        передано на коллектор, сколько в буфере в настоящий момент и пр.
+      operationId: getModuleStatusById      
+      parameters:
+        - $ref: '#/components/parameters/moduleId'
+      responses:
+        '200':
+          description: Возвращает данные о текущем состоянии модуля
+          content:
+            application/json:
+              schema:                
+                $ref: '#/components/schemas/ModuleStatus'
+        '404':
+          description: Модуль не найден
+ 
+  /modules/{moduleId}/commands:
+    put:
+      summary: Команда модулю
+      description: Посылает модулю команду на выполнение
+      operationId: putModuleCommandById
+      parameters:
+        - $ref: '#/components/parameters/moduleId'
+      requestBody:
+        description: Определение команды 
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModuleCommand'
+        required: true
+      responses:
+        '200':
+          description: Команда принята модулем к исполнению
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CommandStatus'
+        '404':
+          description: Модуль не найден
+    get:    
+      summary: Список 5-ти последних полученных модулем команд
+      description: >-
+        Список управляющих команд, непосредственно применимых к модулю.
+      operationId: listModuleCommandsById      
+      parameters:
+        - $ref: '#/components/parameters/moduleId'
+      responses:
+        '200':
+          description: Возвращает список команд для данного модуля
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CommandStatus'
+                maxItems: 5
+        '404':
+          description: Модуль не найден
+
+  /modules/{moduleId}/commands/help:
+    get:
+      summary: Краткая справка по командам модуля
+      description: >-
+        Список управляющих команд, непосредственно применимых к модулю, с
+        краткими подсказками 
+      operationId: listModuleCommandsHelpById      
+      parameters:
+        - $ref: '#/components/parameters/moduleId'
+      responses:
+        '200':
+          description: Список команд для данного модуля с подсказками
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CommandInfo'
+        '404':
+          description: Модуль не найден
+
+  /modules/{moduleId}/devices:
+    get:
+      summary: Список устройств модуля
+      description: Список устройств умного дома, подключенных к модулю
+      operationId: listModuleDevicesById      
+      parameters:
+        - $ref: '#/components/parameters/moduleId'        
+      responses:
+        '200':
+          description: Возвращает список устройств
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DeviceInfo'
+        '404':
+          description: Модуль не найден
+  
+  /modules/{moduleId}/devices/{deviceId}:
+    get:
+      summary: Основные сведения об устройстве 
+      description: Минимальный набор данных о состоянии устройства
+      operationId: getModuleDeviceByIds
+      parameters:
+        - $ref: '#/components/parameters/moduleId'
+        - $ref: '#/components/parameters/deviceId'
+      responses:
+        '200':
+          description: Возвращает минимальный набор данных
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DeviceStatus'
+        '404':
+          description: Модуль или устройство не найдены
+
+components:
+  parameters:
+    moduleId:
+      name: moduleId
+      description: Идентификатор модуля
+      in: path
+      required: true
+      schema:
+        type: number
+        format: int64
+        maximum: 100000000
+
+    deviceId:
+      name: deviceId
+      description: Идентификатор устройства
+      in: path
+      required: true
+      schema:
+        type: number
+        format: int64
+        maximum: 10000000000
+  
+  schemas:
+    HealthResponse:
+      description: Набор данных о текущем статусе микросервиса
+      type: object
+      properties:
+        status:
+          type: string
+          description: Статус микросервиса
+          example: UP
+        checks:
+          type: object
+          properties: 
+            mq:
+              type: string
+              description: Статус брокера сообщений
+              example: UP
+            cache:
+              type: string
+              description: Статус кэша
+              example: UP
+
+    IsModuleAvailable:
+      description: Данные о доступности модуля
+      type: object
+      properties:
+        status:
+          description: Статус модуля
+          type: string
+          example: UP
+        uptime:
+          description: Время непрерывной работы
+          type: string
+          pattern: ^[0-9]{1,6}h[0-9]{2}m{2}s$
+
+    ModuleStatus:
+      description: Набор данных, характеризующих состояние модуля
+      type: object
+      properties:
+        dateTime:
+          description: Текущие дата и время
+          type: string
+          format: date-time
+        moduleTypeId:
+          description: Идентификатор типа модуля
+          type: number
+          format: int32
+        moduleModel:
+          description: Модель модуля
+          type: string
+        version:
+          description: Версия ПО
+          type: string
+        serialNum:
+          description: Серийный номер модуля
+          type: string
+        uptime:
+          description: Время непрерывной работы
+          type: string
+          pattern: ^[0-9]{1,6}h[0-9]{2}m{2}s$        
+        connected-devices:
+          description: Подключено устройств
+          type: number
+          format: int32
+        metrics-collected:
+          description: Собрано метрик с момента включения
+          type: number
+          format: int64
+        metrics-sent:
+          description: Передано метрик на коллектор
+          type: number
+          format: int64
+        metrics-willing:
+          description: Готовых метрик к отправке
+          type: number
+          format: int64
+
+    MetricCore:
+      description: Минимальная характеристика метрики
+      type: object
+      properties:
+        deviceId:
+          description: Идентификатор устройства
+          type: integer
+          format: int32
+        typeId:
+          description: Идентификатор типа метрики
+          type: integer
+          format: int32
+    
+    MetricInModule:
+      description: Метрика внутри контекста модуля
+      allOf:
+      - $ref: '#/components/schemas/MetricCore'
+      - type: object
+        properties:
+          dateTime:
+            description: Дата и время полученного значения
+            type: string
+            format: date-time
+          value:
+            description: Значение метрики
+            type: number
+        additionalProperties: false
+
+    DeviceInfo:
+      type: object
+      properties:
+        deviceId:
+          description: Идентификатор устройства
+          type: number
+          format: int64
+        deviceTypeId:
+          description: Идентификатор типа устройства
+          type: number
+          format: int32
+        serialNum:
+          description: Серийный номер устройства
+          type: string
+
+    DeviceStatus:
+      description: >-
+        Краткая информация об устройстве плюс текущие значения метрик
+      allOf:
+      - $ref: '#/components/schemas/DeviceInfo'
+      - type: object
+        properties:
+          metrics:
+            type: array
+            items: 
+              $ref: '#/components/schemas/MetricInModule'
+
+    Command:
+      description: Минимальная информация об управляющей команде
+      type: object
+      properties:
+        commandId:
+          description: Идентификатор команды в системе SmartHome
+          type: number
+          format: int32
+        title:
+          description: Наименование команды
+          type: string
+          minLength: 1
+          maxLength: 50
+
+    CommandInfo:
+      description: Информация об управляющей команде с подсказкой
+      allOf:
+      - $ref: '#/components/schemas/Command'
+      - type: object      
+        properties:
+          description:
+            description: Краткая характеристика команды (подсказка)
+            type: string
+            maxLength: 500
+      
+    KeyValStrings:
+      description: Пара ключ-значение
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 1
+          maxLength: 40
+        value:
+          type: string
+          minLength: 1
+          maxLength: 300
+      required:
+        - key
+        - value
+      additionalProperties: false
+    
+    ModuleCommand:
+      description: Управляющая команда модулю
+      type: object
+      properties:
+        command:
+          description: Команда
+          type: string
+          minLength: 1
+          maxLength: 50
+        args:
+          description: Именованные аргументы
+          type: array
+          items:
+            $ref: '#/components/schemas/KeyValStrings'
+      required:
+        - command
+      additionalProperties: false
+      example:                  
+        {
+          "command": "update",
+          "args":
+            [
+              "--image",
+              "https://go.to/f2345213qfwe23"
+            ]
+        }
+
+    CommandStatus:      
+      description: Сведения о полученной команде            
+      allOf: 
+      - $ref: '#/components/schemas/Command'
+      - type: object
+        properties:
+          dateTime:
+            description: Дата и время получения команды модулем
+            type: string
+            format: date-time
+          last-status:
+            description: Статус команды на момент формирования ответа
+            type: string
+            enum:
+              - pending
+              - started
+              - success
+              - failure
+          serial:
+            description: ID, по которому можно запросить статус
+            type: number
+            format: int32
+        
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

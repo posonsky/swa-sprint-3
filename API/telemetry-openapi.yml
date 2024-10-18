@@ -82,7 +82,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/MetricWOModule'
+                  $ref: '#/components/schemas/MetricInModule'
         '404':
           description: Модуль не найден
 
@@ -105,7 +105,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/MetricWOModule'
+                  $ref: '#/components/schemas/MetricInModule'
         '404':
           description: Модуль не найден
   
@@ -151,8 +151,7 @@ paths:
   /devices/{deviceId}/history:
     get:
       summary: Список значений метрик
-      description: >-
-        Возвращает все полученные данные с устройства
+      description: Возвращает все полученные данные с устройства
       operationId: getHistoryByDeviceId
       parameters:
         - $ref: '#/components/parameters/deviceId'
@@ -174,23 +173,23 @@ components:
   parameters:
     moduleId:
       name: moduleId
+      description: Идентификатор модуля
       in: path
       required: true
       schema:
         type: number
         format: int64
         maximum: 100000000
-        description: Идентификатор модуля
-
+        
     deviceId:
       name: deviceId
+      description: Идентификатор устройства
       in: path
       required: true
-      schema:
+      schema:        
         type: number
-        format: int64
-        maximum: 10000000000
-        description: Идентификатор устройства
+        format: int32
+        maximum: 10000
     
     dateSince:
       name: since
@@ -214,78 +213,88 @@ components:
   
   schemas:
     HealthResponse:
+      description: Набор данных о текущем статусе микросервиса
       type: object
       properties:
         status:
-          type: string
           description: Статус микросервиса
+          type: string
           example: UP
         checks:
           type: object
           properties: 
             mq:
+              description: Статус подключения к брокеру сообщений
               type: string
-              description: Статус брокера сообщений
               example: UP
             db:
+              description: Статус подключения к СУБД
               type: string
-              description: Статус СУБД
-              example: UP
-            collector:
-              type: string
-              description: Статус OTel коллектора 
-              example: UP
+              example: UP            
       additionalProperties: false
     
     Present:
       type: object
       properties:        
         present:
-          type: boolean          
           description: Флаг наличия данных в хранилище
+          type: boolean          
       additionalProperties: false
   
-    MetricStat:
+    MetricCore:
+      description: Минимальная характеристика метрики
       type: object
       properties:
         deviceId:
-          type: integer
-          format: int64          
-        typeId:
+          description: Идентификатор устройства
           type: integer
           format: int32
-        numOfValues:
+        typeId:
+          description: Идентификатор типа метрики
           type: integer
-          format: int64
-      additionalProperties: false
+          format: int32
+        
+    MetricStat:
+      description: Статданные об одной метрике в контексте модуля
+      allOf:
+      - $ref: '#/components/schemas/MetricCore'
+      - type: object
+        properties:      
+          numOfValues:
+            description: >-
+              Количество метрик определённого типа для определённого устройства
+            type: integer
+            format: int64
+        additionalProperties: false
     
-    MetricWOModule:
-      type: object
-      properties:        
-        deviceId:
-          type: integer
-          format: int64          
-        typeId:
-          type: integer
-          format: int32
-        dateTime:
-          type: string
-          format: date-time
-        value:
-          type: number
-      additionalProperties: false
+    MetricInModule:
+      description: Метрика внутри контекста модуля
+      allOf:
+      - $ref: '#/components/schemas/MetricCore'
+      - type: object
+        properties:
+          dateTime:
+            description: Дата и время полученного значения
+            type: string
+            format: date-time
+          value:
+            description: Значение метрики
+            type: number
+        additionalProperties: false
 
     Metric:
+      description: Полная характеристика метрики в системе
       allOf:
-        - $ref: '#/components/schemas/MetricWOModule'
-        - type: object
-          required:
-            - moduleId
-          properties:
-            moduleId:
-              type: integer
-              format: int64
-          additionalProperties: false
+      - $ref: '#/components/schemas/MetricInModule'
+      - type: object
+        required:
+          - moduleId
+        properties:
+          moduleId:
+            description: Идентификатор модуля
+            type: integer
+            format: int64
+        additionalProperties: false
 
   securitySchemes:
     Bearer:
