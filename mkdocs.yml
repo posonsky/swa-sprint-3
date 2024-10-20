@@ -4,7 +4,7 @@ theme:
   name: material
   language: ru
   plugins:
-  - typeset
+    - typeset
   
 markdown_extensions:
   - md_in_html  
@@ -22,7 +22,8 @@ plugins:
       puml_url: https://www.plantuml.com/plantuml/
       puml_keyword: puml
       verify_ssl: true
-      auto_dark: false
+      theme:
+        enabled: false
   - toc-md:
       toc_page_title: Содержание
       toc_page_description: Документация решений практической работы №3
