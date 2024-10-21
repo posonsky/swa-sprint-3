@@ -10,6 +10,7 @@
 !include <tupadr3/common>
 !include <tupadr3/devicons2/react_original>
 !include <tupadr3/font-awesome-6/microchip>
+!include <tupadr3/font-awesome-6/mobile_screen>
 
 title [System Context] ПП «Хитрый Дом»
 
@@ -26,7 +27,7 @@ System_Ext(device, "Устройство", \
     $type="Software System")
 System_Ext(mobile_app, "Мобильное приложение", \
     "Предоставляет интерфейс для управления УД", \
-    $type="Software System")
+    $sprite=mobile_screen, $type="Software System")
 
 System(smart_home, "ПП «Хитрый Дом»", \
     "Управляет системами УД", \
@@ -35,7 +36,7 @@ System(smart_home, "ПП «Хитрый Дом»", \
 Rel(customer, frontend, "Управляет УД", $techn="HTTP")
 Rel(frontend, smart_home, "Направляет запросы к ReST API системы", \
     $techn="ReST/JSON")
-BiRel(frontend, smart_home, "Обменивается данными", \
+'BiRel(frontend, smart_home, "Обменивается данными", \
     $techn="Websockets/JSON")
 
 Rel(smart_home, module, "Посылает команды", $techn="MQTT || gRPS")

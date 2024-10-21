@@ -20,7 +20,7 @@ Container(apigw, "API шлюз", "Container: Kusk", \
     "Маршрутизирует ReST запросы", $sprite=route)
     
 ContainerQueue(broker, "Брокер сообщений", "Container: NATS", \
-    "Маршрутизирует сообщения между сервисами", $sprite=right_left)
+    "Маршрутизирует сообщения между сервисами", $sprite=right_left) #00bb00
 
 Container_Boundary(cb, "Реестр") {
     Component(inventory_repo, "Репозиторий", \
@@ -28,7 +28,7 @@ Container_Boundary(cb, "Реестр") {
     Component(inventory_rest, "ReST API", "Component: FastAPI", \
         $sprite=fastapi)
     Component(inventory_async, "Асинхронный API", "Component: FastStream", \
-        $sprite=python)
+        $sprite=python) #00bb00
 }
 
 ContainerDb(db_inventory, "БД Реестра", \

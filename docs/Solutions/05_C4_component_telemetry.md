@@ -18,22 +18,22 @@ Container(apigw, "API шлюз", "Container: Kusk", \
     "Маршрутизирует ReST запросы", $sprite=route)
     
 ContainerQueue(broker, "Брокер сообщений", "Container: NATS", \
-    "Маршрутизирует сообщения между сервисами", $sprite=right_left)
+    "Маршрутизирует сообщения между сервисами", $sprite=right_left) #00bb00
 
 Container_Boundary(cb, "Телеметрия") {
     Component(telemetry_repo, "Репозиторий", "Component: Python / SQLAlchemy", \
         $sprite=python)
     Component(telemetry_rest, "ReST API", "Component: FastAPI", \
         $sprite=fastapi)
-    Component(telemetry_async, "Асинхронный API", "Component: FastStream", $sprite=python)
+    Component(telemetry_async, "Асинхронный API", "Component: FastStream", \
+        $sprite=python) #00bb00
 }
 
-System_Ext(module, "Модуль", "Модуль управления устройствами умного дома", \
+System(module, "Модуль", "Модуль управления устройствами умного дома", \
     $sprite=microchip, $type="Software System")
-ContainerQueue(collector, "Коллектор", "Container: OpenTelemetry Collector", \
-    "Направляет в БД поток данных о состоянии от устройств", \
-    $sprite=opentelemetry)
-ContainerDb(db_telemetry, "БД Телеметрии", "Container: VictoriaMetrics", \
+ContainerQueue(collector, "Брокер MQTT", "Container: EMQX", \
+    "Направляет в БД поток данных о состоянии от устройств")
+ContainerDb(db_telemetry, "БД Телеметрии", "Container: TDEngine", \
     "Хранит данные Телеметрии", $sprite=database)
 
 Rel(telemetry_rest, telemetry_repo, "Использует", $techn="direct")
@@ -45,7 +45,7 @@ Rel(apigw, telemetry_rest, "Транслирует запросы к ReST API", 
 Rel_U(telemetry_async, broker, "Отправляет и получает сообщения", \
     $techn="MessagePack")
 
-Rel(module, collector, "Отправляет телеметрию", $techn="OTLP/gRPC")
+Rel(module, collector, "Отправляет телеметрию", $techn="MQTT")
 Rel_L(collector, db_telemetry, "Вставляет данные", $techn="SQL/TCP")
 
 @enduml

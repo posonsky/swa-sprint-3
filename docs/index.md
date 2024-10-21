@@ -23,6 +23,8 @@
 ### [Анализ требований](Solutions/00_to_be.md#_2)
 ## [Диаграмма контекста системы (C4)](Solutions/01_C4_system_context.md#c4)
 ## [Диаграмма контейнеров (С4)](Solutions/02_C4_containers.md#4)
+### [О выборе программ](Solutions/02_C4_containers.md#_1)
+### [О развёртывании](Solutions/02_C4_containers.md#_2)
 ## [Диаграмма компонента «Реестр» (C4)](Solutions/03_C4_component_inventory.md#c4)
 ## [Диаграмма компонента «Командир» (C4)](Solutions/04_C4_component_commander.md#c4)
 ## [Диаграмма компонента «Телеметрия» (C4)](Solutions/05_C4_component_telemetry.md#c4)
