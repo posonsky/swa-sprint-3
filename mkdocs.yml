@@ -1,0 +1,30 @@
+site_name: Курс «Архитектура ПО». Спринт №3
+
+theme:
+  name: material
+  language: ru
+  plugins:
+    - typeset
+  
+markdown_extensions:
+  - md_in_html  
+  - smarty
+  - toc:
+      permalink: True
+      separator: '_'      
+  - sane_lists
+plugins:
+  - search:
+      lang:
+        - ru
+  - plantuml-colocator
+  - plantuml:
+      puml_url: https://www.plantuml.com/plantuml/
+      puml_keyword: puml
+      verify_ssl: true
+      theme:
+        enabled: false
+  - toc-md:
+      toc_page_title: Содержание
+      toc_page_description: Диаграммы и описание заданий практической работы №3
+      header_level: 4

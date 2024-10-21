@@ -1,0 +1,58 @@
+# Диаграмма контекста системы (C4)
+
+Поскольку команда разработчиков у компании небольшая, и значительные средства пришлось вложить в заказное производство модулей, руководством (будем считать) было принято решение на начальном этапе осуществить создания мобильного приложения для непосредственного управлениями системами УД методом аутсорсинга.
+
+В будущем следует рассматривать сценарий с разработкой и поддержкой 2-х версий мобильного приложения: одну, бесплатную с минимально интересным для потребителей функционалом, а другую, максимально удобную и полезную — платную. Для Android, для iOS можно только платную.
+
+```puml
+@startuml
+!include <C4/C4_Context>
+!include <tupadr3/common>
+!include <tupadr3/devicons2/react_original>
+!include <tupadr3/font-awesome-6/microchip>
+!include <tupadr3/font-awesome-6/mobile_screen>
+
+title [System Context] ПП «Хитрый Дом»
+
+Person_Ext(customer, "Пользователь", "Пользователь системы", \
+    $type=Person)
+
+System(module, "Модуль", "Модуль управления устройствами УД", \
+    $sprite=microchip, $type="Software System")
+System_Ext(frontend, "HTTP-фронтенд", \
+    "Предоставляет интерфейс для взаимодействия с пользователями системы", \
+    $sprite=react_original, $type="Software System: React")
+System_Ext(device, "Устройство", \
+    "Выполняет определённую функцию системе УД", \
+    $type="Software System")
+System_Ext(mobile_app, "Мобильное приложение", \
+    "Предоставляет интерфейс для управления УД", \
+    $sprite=mobile_screen, $type="Software System")
+
+System(smart_home, "ПП «Хитрый Дом»", \
+    "Управляет системами УД", \
+    $type="Software System", $link="../02_C4_containers/")
+
+Rel(customer, frontend, "Управляет УД", $techn="HTTP")
+Rel(frontend, smart_home, "Направляет запросы к ReST API системы", \
+    $techn="ReST/JSON")
+'BiRel(frontend, smart_home, "Обменивается данными", \
+    $techn="Websockets/JSON")
+
+Rel(smart_home, module, "Посылает команды", $techn="MQTT || gRPS")
+Rel(module, smart_home, "Отправляет телеметрию", $techn="MQTT")
+BiRel(module, device, "Управляет устройством / получает телеметрию")
+
+Rel(customer, mobile_app, "Использует")
+
+Rel(mobile_app, module, "Управляет системой УД", $techn="gRPS")
+Rel(mobile_app, smart_home, \
+    "Просматривает историю/Управляет системой (резервный канал)", \
+    $techn="gRPS")
+
+@enduml
+```
+
+Как видно на диаграмме, «прошивка» модулей была реализована с поддержкой 2-х протоколов MQTT и gRPS.
+
+Рискну предположить, что по мнению создателей курса, для нас, студентов, особенную радость доставляет возможность создания интерактивных диаграмм. Пожалуйста, кликните (1 раз левой кнопкой) на синем прямоугольнике с надписью ПП «Хитрый дом»!

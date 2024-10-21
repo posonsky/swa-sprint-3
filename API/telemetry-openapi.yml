@@ -1,0 +1,303 @@
+openapi: '3.0.3'
+info:
+  title: SmartHome Telemetry microservice API
+  description: >-
+    Спецификация ReST API микросервиса «Телеметрия» ПП «Хитрый дом»
+  contact:
+    email: user@email.ru
+  version: '1.0'
+
+servers:
+  - url: http://telemetry.smart-home.internal/v1
+
+paths:
+  /health:
+    get:
+      summary: Проверить состояние сервиса
+      description: Проверить текущее состояние сервиса
+      operationId: checkHealth
+      responses:
+        '200':
+          description: Сервис в порядке
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '500':
+          description: Внутренняя ошибка сервиса
+  
+  /modules/{moduleId}:
+    get:
+      summary: Есть ли данные с указанного модуля
+      description: Отображает, были ли уже получены данные с указанного модуля
+      operationId: getModuleById      
+      parameters:
+        - $ref: '#/components/parameters/moduleId'
+      responses:
+        '200':
+          description: >-
+            Возвращает объект с единственным свойством present типа boolean
+          content:
+            application/json:
+              schema:                
+                $ref: '#/components/schemas/Present'
+        '404':
+          description: Модуль не найден
+  
+  /modules/{moduleId}/stat:
+    get:
+      summary: Получить агрегированные данные по указанному модулю
+      description: Агрегированная информация со всех устройств модуля
+      operationId: getStatByModuleId
+      parameters:
+        - $ref: '#/components/parameters/moduleId'          
+      responses:
+        '200':
+          description: >-
+            Возвращает список метрик со всех устройств, собранных посредством
+            данного модуля
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MetricStat'
+        '404':
+          description: Модуль не найден
+  
+  /modules/{moduleId}/latest:
+    get:
+      summary: Список последних значений каждой метрики
+      description: >-
+        Возвращает последнее значение для каждой метрики, полученной со всех
+        устройств, которые подключены к данному модулю
+      operationId: getLatestByModuleId
+      parameters:
+        - $ref: '#/components/parameters/moduleId'
+      responses:
+        '200':
+          description: Список последних показаний по каждой метрике
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MetricInModule'
+        '404':
+          description: Модуль не найден
+
+  /modules/{moduleId}/history:
+    get:
+      summary: Список значений метрик
+      description: >-
+        Возвращает все полученные данные со всех устройств, которые подключены
+        к данному модулю
+      operationId: getHistoryByModuleId
+      parameters:
+        - $ref: '#/components/parameters/moduleId'
+        - $ref: '#/components/parameters/dateSince'
+        - $ref: '#/components/parameters/dateTo'   
+      responses:
+        '200':
+          description: Массив всех метрик, снятых с модуля
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MetricInModule'
+        '404':
+          description: Модуль не найден
+  
+  /devices/{deviceId}:
+    get:
+      summary: Есть ли данные указанного устройства
+      description: Отображает, были ли уже получены данные указанного устройства
+      operationId: getDeviceById
+      parameters:
+        - $ref: '#/components/parameters/deviceId'
+      responses:
+        '200':
+          description: >-
+            Возвращает объект с единственным свойством present типа boolean
+          content:
+            application/json:
+              schema:                
+                $ref: '#/components/schemas/Present'
+        '404':
+          description: Устройство не найдено
+  
+  /devices/{deviceId}/latest:
+    get:
+      summary: Последние значения метрик устройства
+      description: >-
+        Возвращает последнее значение для каждой метрики, относящихся к
+        устройству
+      operationId: getLatestByDeviceId
+      parameters:
+        - $ref: '#/components/parameters/deviceId'
+      responses:
+        '200':
+          description: Список последних показаний c устройства
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Metric'
+        '404':
+          description: Устройство не найдено
+  
+  /devices/{deviceId}/history:
+    get:
+      summary: Список значений метрик
+      description: Возвращает все полученные данные с устройства
+      operationId: getHistoryByDeviceId
+      parameters:
+        - $ref: '#/components/parameters/deviceId'
+        - $ref: '#/components/parameters/dateSince'
+        - $ref: '#/components/parameters/dateTo'
+      responses:
+        '200':
+          description: Массив метрик устройства
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Metric'
+        '404':
+          description: Устройство не найдено
+
+components:
+  parameters:
+    moduleId:
+      name: moduleId
+      description: Идентификатор модуля
+      in: path
+      required: true
+      schema:
+        type: number
+        format: int64
+        maximum: 100000000
+        
+    deviceId:
+      name: deviceId
+      description: Идентификатор устройства
+      in: path
+      required: true
+      schema:        
+        type: number
+        format: int32
+        maximum: 10000
+    
+    dateSince:
+      name: since
+      description: Дата и время, с которого возвращать данные
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date-time
+        maxLength: 25
+
+    dateTo:
+      name: to
+      description: Дата и время, до которого возвращать данные
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date-time
+        maxLength: 25
+  
+  schemas:
+    HealthResponse:
+      description: Набор данных о текущем статусе микросервиса
+      type: object
+      properties:
+        status:
+          description: Статус микросервиса
+          type: string
+          example: UP
+        checks:
+          type: object
+          properties: 
+            mq:
+              description: Статус подключения к брокеру сообщений
+              type: string
+              example: UP
+            db:
+              description: Статус подключения к СУБД
+              type: string
+              example: UP            
+      additionalProperties: false
+    
+    Present:
+      type: object
+      properties:        
+        present:
+          description: Флаг наличия данных в хранилище
+          type: boolean          
+      additionalProperties: false
+  
+    MetricCore:
+      description: Минимальная характеристика метрики
+      type: object
+      properties:
+        deviceId:
+          description: Идентификатор устройства
+          type: integer
+          format: int32
+        typeId:
+          description: Идентификатор типа метрики
+          type: integer
+          format: int32
+        
+    MetricStat:
+      description: Статданные об одной метрике в контексте модуля
+      allOf:
+      - $ref: '#/components/schemas/MetricCore'
+      - type: object
+        properties:      
+          numOfValues:
+            description: >-
+              Количество метрик определённого типа для определённого устройства
+            type: integer
+            format: int64
+        additionalProperties: false
+    
+    MetricInModule:
+      description: Метрика внутри контекста модуля
+      allOf:
+      - $ref: '#/components/schemas/MetricCore'
+      - type: object
+        properties:
+          dateTime:
+            description: Дата и время полученного значения
+            type: string
+            format: date-time
+          value:
+            description: Значение метрики
+            type: number
+        additionalProperties: false
+
+    Metric:
+      description: Полная характеристика метрики в системе
+      allOf:
+      - $ref: '#/components/schemas/MetricInModule'
+      - type: object
+        required:
+          - moduleId
+        properties:
+          moduleId:
+            description: Идентификатор модуля
+            type: integer
+            format: int64
+        additionalProperties: false
+
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

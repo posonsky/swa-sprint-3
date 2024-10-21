@@ -192,3 +192,7 @@ build/
 
 tmp/
 task-*
+
+.venv/
+.42c/
+
