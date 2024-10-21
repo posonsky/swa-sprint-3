@@ -24,10 +24,12 @@ ContainerQueue(broker, "Брокер сообщений", "Container: NATS", \
 
 Container_Boundary(cb, "Реестр") {
     Component(inventory_repo, "Репозиторий", \
-    "Component: Python / SQLAlchemy", $sprite=python)
+    "Component: Python / SQLAlchemy", \
+    "Управляет данными микросервиса", $sprite=python)
     Component(inventory_rest, "ReST API", "Component: FastAPI", \
-        $sprite=fastapi)
+        "Предоставляет ReST API", $sprite=fastapi)
     Component(inventory_async, "Асинхронный API", "Component: FastStream", \
+        "Предоставляет асинхронный API", \
         $sprite=python) #00bb00
 }
 

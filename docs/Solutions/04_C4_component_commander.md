@@ -21,16 +21,18 @@ ContainerQueue(broker, "Брокер сообщений", "Container: NATS", \
 
 Container_Boundary(cb, "Командир") {
     Component(commander_core, "Ядро", "Component: Python", \
+        "Управляет пользовательскими системами УД", \
         $sprite=python)
     Component(commander_rest, "ReST API", "Component: FastAPI", \
-        $sprite=fastapi)
+        "Предоставляет ReST API", $sprite=fastapi)
     Component(commander_async, "Асинхронный API", "Component: FastStream", \
+        "Предоставляет асинхронный API", \
         $sprite=python) #00bb00
 }
 
 ContainerDb(cache_commander, "Кэш Командира", \
     "Container: Valkey", "Обслуживает кэш Командира", $sprite=redis)
-System(module, "Модуль", "Модуль управления устройствами умного дома", \
+System(module, "Модуль", "Модуль управления устройствами УД", \
     $sprite=microchip, $type="Software System")
 
 Rel(commander_rest, commander_core, "Использует", $techn="direct")

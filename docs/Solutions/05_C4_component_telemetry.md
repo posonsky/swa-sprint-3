@@ -22,14 +22,15 @@ ContainerQueue(broker, "Брокер сообщений", "Container: NATS", \
 
 Container_Boundary(cb, "Телеметрия") {
     Component(telemetry_repo, "Репозиторий", "Component: Python / SQLAlchemy", \
-        $sprite=python)
+        "Предоставляет интерфейс к БД сервиса", $sprite=python)
     Component(telemetry_rest, "ReST API", "Component: FastAPI", \
-        $sprite=fastapi)
+        "Предоставляет ReST API", $sprite=fastapi)
     Component(telemetry_async, "Асинхронный API", "Component: FastStream", \
+        "Предоставляет асинхронный API", \
         $sprite=python) #00bb00
 }
 
-System(module, "Модуль", "Модуль управления устройствами умного дома", \
+System(module, "Модуль", "Модуль управления устройствами УД", \
     $sprite=microchip, $type="Software System")
 ContainerQueue(collector, "Брокер MQTT", "Container: EMQX", \
     "Направляет в БД поток данных о состоянии от устройств")
@@ -41,7 +42,7 @@ Rel_D(telemetry_async, telemetry_repo, "Использует", $techn="direct")
 Rel(telemetry_repo, db_telemetry, "Выбирает данные", $techn="SQL/TCP")
 
 Rel(apigw, telemetry_rest, "Транслирует запросы к ReST API", \
-    $techn="ReST / JSON")
+    $techn="ReST/JSON")
 Rel_U(telemetry_async, broker, "Отправляет и получает сообщения", \
     $techn="MessagePack")
 
